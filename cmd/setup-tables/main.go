@@ -17,6 +17,9 @@ func main() {
 	subscribe_opts := dynamodb.DefaultDynamoDBSubscriptionsDatabaseOptions()
 	confirm_opts := dynamodb.DefaultDynamoDBConfirmationsDatabaseOptions()
 
+	subscribe_opts.CreateTable = true
+	confirm_opts.CreateTable = true
+
 	var err error
 
 	_, err = dynamodb.NewDynamoDBSubscriptionsDatabaseWithDSN(*dsn, subscribe_opts)
