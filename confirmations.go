@@ -10,6 +10,8 @@ import (
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
+const CONFIRMATIONS_DEFAULT_TABLENAME string = "confirmations"
+
 type DynamoDBConfirmationsDatabaseOptions struct {
 	TableName   string
 	BillingMode string
@@ -19,7 +21,7 @@ type DynamoDBConfirmationsDatabaseOptions struct {
 func DefaultDynamoDBConfirmationsDatabaseOptions() *DynamoDBConfirmationsDatabaseOptions {
 
 	opts := DynamoDBConfirmationsDatabaseOptions{
-		TableName:   "confirmations",
+		TableName:   CONFIRMATIONS_DEFAULT_TABLENAME,
 		BillingMode: "PAY_PER_REQUEST",
 		CreateTable: false,
 	}

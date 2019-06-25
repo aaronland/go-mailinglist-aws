@@ -10,6 +10,8 @@ import (
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
+const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"
+
 type DynamoDBSubscriptionsDatabaseOptions struct {
 	TableName   string
 	BillingMode string
@@ -19,7 +21,7 @@ type DynamoDBSubscriptionsDatabaseOptions struct {
 func DefaultDynamoDBSubscriptionsDatabaseOptions() *DynamoDBSubscriptionsDatabaseOptions {
 
 	opts := DynamoDBSubscriptionsDatabaseOptions{
-		TableName:   "subscriptions",
+		TableName:   SUBSCRIPTIONS_DEFAULT_TABLENAME,
 		BillingMode: "PAY_PER_REQUEST",
 		CreateTable: false,
 	}
