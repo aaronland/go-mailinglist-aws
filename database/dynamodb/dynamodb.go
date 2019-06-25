@@ -1,7 +1,10 @@
 package dynamodb
 
+// https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-list-tables.html
+// https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-create-table.html
+
 import (
-	"errors"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
@@ -17,7 +20,38 @@ func CreateSubscriptionsTable(client *dynamodb.DynamoDB, table_name string) (boo
 		return true, nil
 	}
 
-	return false, errors.New("Please write me")
+	req := &dynamodb.CreateTableInput{
+		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{
+				AttributeName: aws.String("Created"),
+				AttributeType: aws.String("N"),
+			},
+			{
+				AttributeName: aws.String("Confirmed"),
+				AttributeType: aws.String("N"),
+			},
+			{
+				AttributeName: aws.String("Status"),
+				AttributeType: aws.String("N"),
+			},
+		},
+		KeySchema: []*dynamodb.KeySchemaElement{
+			{
+				AttributeName: aws.String("Address"),
+				KeyType:       aws.String("S"),
+			},
+		},
+
+		TableName: aws.String(table_name),
+	}
+
+	_, err = client.CreateTable(req)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func CreateConfirmationsTable(client *dynamodb.DynamoDB, table_name string) (bool, error) {
@@ -32,7 +66,42 @@ func CreateConfirmationsTable(client *dynamodb.DynamoDB, table_name string) (boo
 		return true, nil
 	}
 
-	return false, errors.New("Please write me")
+	req := &dynamodb.CreateTableInput{
+		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{
+				AttributeName: aws.String("Action"),
+				AttributeType: aws.String("S"),
+			},
+			{
+				AttributeName: aws.String("Created"),
+				AttributeType: aws.String("N"),
+			},
+			{
+				AttributeName: aws.String("Status"),
+				AttributeType: aws.String("N"),
+			},
+		},
+		KeySchema: []*dynamodb.KeySchemaElement{
+			{
+				AttributeName: aws.String("Code"),
+				KeyType:       aws.String("S"),
+			},
+			{
+				AttributeName: aws.String("Address"),
+				KeyType:       aws.String("S"),
+			},
+		},
+
+		TableName: aws.String(table_name),
+	}
+
+	_, err = client.CreateTable(req)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func hasTable(client *dynamodb.DynamoDB, table string) (bool, error) {
