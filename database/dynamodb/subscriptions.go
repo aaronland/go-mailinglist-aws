@@ -11,13 +11,15 @@ import (
 )
 
 type DynamoDBSubscriptionsDatabaseOptions struct {
-	Table string
+	TableName   string
+	BillingMode string
 }
 
 func DefaultDynamoDBSubscriptionsDatabaseOptions() *DynamoDBSubscriptionsDatabaseOptions {
 
 	opts := DynamoDBSubscriptionsDatabaseOptions{
-		Table: "subscriptions",
+		TableName:   "subscriptions",
+		BillingMode: "PAY_PER_REQUEST",
 	}
 
 	return &opts
@@ -44,7 +46,7 @@ func NewDynamoDBSubscriptionsDatabaseWithSession(sess *aws_session.Session, opts
 
 	client := dynamodb.New(sess)
 
-	_, err := CreateSubscriptionsTable(client, opts.Table)
+	_, err := CreateSubscriptionsTable(client, opts)
 
 	if err != nil {
 		return nil, err

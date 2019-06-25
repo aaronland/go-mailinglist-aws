@@ -22,13 +22,13 @@ func main() {
 	_, err = dynamodb.NewDynamoDBSubscriptionsDatabaseWithDSN(*dsn, subscribe_opts)
 
 	if err != nil {
-		log.Printf("Failed to set up %s table, %s\n", subscribe_opts.Table, err)
+		log.Printf("Failed to set up %s table, %s\n", subscribe_opts.TableName, err)
 	}
 
 	_, err = dynamodb.NewDynamoDBConfirmationsDatabaseWithDSN(*dsn, confirm_opts)
 
 	if err != nil {
-		log.Printf("Failed to set up %s table, %s\n", confirm_opts.Table, err)
+		log.Printf("Failed to set up %s table, %s\n", confirm_opts.TableName, err)
 	}
 
 }

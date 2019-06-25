@@ -2,15 +2,18 @@ package dynamodb
 
 // https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-list-tables.html
 // https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-create-table.html
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html#HowItWorks.CoreComponents.TablesItemsAttributes
+// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#CreateTableInput
+// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#AttributeDefinition
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-func CreateSubscriptionsTable(client *dynamodb.DynamoDB, table_name string) (bool, error) {
+func CreateSubscriptionsTable(client *dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions) (bool, error) {
 
-	has_table, err := hasTable(client, table_name)
+	has_table, err := hasTable(client, opts.TableName)
 
 	if err != nil {
 		return false, err
@@ -22,6 +25,10 @@ func CreateSubscriptionsTable(client *dynamodb.DynamoDB, table_name string) (boo
 
 	req := &dynamodb.CreateTableInput{
 		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{
+				AttributeName: aws.String("Address"),
+				AttributeType: aws.String("S"),
+			},
 			{
 				AttributeName: aws.String("Created"),
 				AttributeType: aws.String("N"),
@@ -38,11 +45,11 @@ func CreateSubscriptionsTable(client *dynamodb.DynamoDB, table_name string) (boo
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{
 				AttributeName: aws.String("Address"),
-				KeyType:       aws.String("S"),
+				KeyType:       aws.String("HASH"),
 			},
 		},
-
-		TableName: aws.String(table_name),
+		BillingMode: aws.String(opts.BillingMode),
+		TableName:   aws.String(opts.TableName),
 	}
 
 	_, err = client.CreateTable(req)
@@ -54,9 +61,9 @@ func CreateSubscriptionsTable(client *dynamodb.DynamoDB, table_name string) (boo
 	return true, nil
 }
 
-func CreateConfirmationsTable(client *dynamodb.DynamoDB, table_name string) (bool, error) {
+func CreateConfirmationsTable(client *dynamodb.DynamoDB, opts *DynamoDBConfirmationsDatabaseOptions) (bool, error) {
 
-	has_table, err := hasTable(client, table_name)
+	has_table, err := hasTable(client, opts.TableName)
 
 	if err != nil {
 		return false, err
@@ -68,6 +75,10 @@ func CreateConfirmationsTable(client *dynamodb.DynamoDB, table_name string) (boo
 
 	req := &dynamodb.CreateTableInput{
 		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{
+				AttributeName: aws.String("Code"),
+				AttributeType: aws.String("S"),
+			},
 			{
 				AttributeName: aws.String("Action"),
 				AttributeType: aws.String("S"),
@@ -84,15 +95,19 @@ func CreateConfirmationsTable(client *dynamodb.DynamoDB, table_name string) (boo
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{
 				AttributeName: aws.String("Code"),
-				KeyType:       aws.String("S"),
-			},
-			{
-				AttributeName: aws.String("Address"),
-				KeyType:       aws.String("S"),
+				KeyType:       aws.String("HASH"),
 			},
 		},
-
-		TableName: aws.String(table_name),
+		/*
+			GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+				{
+					IndexName: aws.String("Address"),
+					KeySchema:       aws.String("HASH"),
+				},
+			},
+		*/
+		BillingMode: aws.String(opts.BillingMode),
+		TableName:   aws.String(opts.TableName),
 	}
 
 	_, err = client.CreateTable(req)

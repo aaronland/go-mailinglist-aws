@@ -11,13 +11,15 @@ import (
 )
 
 type DynamoDBConfirmationsDatabaseOptions struct {
-	Table string
+	TableName   string
+	BillingMode string
 }
 
 func DefaultDynamoDBConfirmationsDatabaseOptions() *DynamoDBConfirmationsDatabaseOptions {
 
 	opts := DynamoDBConfirmationsDatabaseOptions{
-		Table: "confirmations",
+		TableName:   "confirmations",
+		BillingMode: "PAY_PER_REQUEST",
 	}
 
 	return &opts
@@ -44,7 +46,7 @@ func NewDynamoDBConfirmationsDatabaseWithSession(sess *aws_session.Session, opts
 
 	client := dynamodb.New(sess)
 
-	_, err := CreateConfirmationsTable(client, opts.Table)
+	_, err := CreateConfirmationsTable(client, opts)
 
 	if err != nil {
 		return nil, err
