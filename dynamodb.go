@@ -8,10 +8,10 @@ package dynamodb
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-func CreateSubscriptionsTable(client *dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions) (bool, error) {
+func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions) (bool, error) {
 
 	has_table, err := hasTable(client, opts.TableName)
 
@@ -23,8 +23,8 @@ func CreateSubscriptionsTable(client *dynamodb.DynamoDB, opts *DynamoDBSubscript
 		return true, nil
 	}
 
-	req := &dynamodb.CreateTableInput{
-		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+	req := &aws_dynamodb.CreateTableInput{
+		AttributeDefinitions: []*aws_dynamodb.AttributeDefinition{
 			{
 				AttributeName: aws.String("Address"),
 				AttributeType: aws.String("S"),
@@ -42,7 +42,7 @@ func CreateSubscriptionsTable(client *dynamodb.DynamoDB, opts *DynamoDBSubscript
 				AttributeType: aws.String("N"),
 			},
 		},
-		KeySchema: []*dynamodb.KeySchemaElement{
+		KeySchema: []*aws_dynamodb.KeySchemaElement{
 			{
 				AttributeName: aws.String("Address"),
 				KeyType:       aws.String("HASH"),
@@ -61,7 +61,7 @@ func CreateSubscriptionsTable(client *dynamodb.DynamoDB, opts *DynamoDBSubscript
 	return true, nil
 }
 
-func CreateConfirmationsTable(client *dynamodb.DynamoDB, opts *DynamoDBConfirmationsDatabaseOptions) (bool, error) {
+func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfirmationsDatabaseOptions) (bool, error) {
 
 	has_table, err := hasTable(client, opts.TableName)
 
@@ -73,8 +73,8 @@ func CreateConfirmationsTable(client *dynamodb.DynamoDB, opts *DynamoDBConfirmat
 		return true, nil
 	}
 
-	req := &dynamodb.CreateTableInput{
-		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+	req := &aws_dynamodb.CreateTableInput{
+		AttributeDefinitions: []*aws_dynamodb.AttributeDefinition{
 			{
 				AttributeName: aws.String("Code"),
 				AttributeType: aws.String("S"),
@@ -92,14 +92,14 @@ func CreateConfirmationsTable(client *dynamodb.DynamoDB, opts *DynamoDBConfirmat
 				AttributeType: aws.String("N"),
 			},
 		},
-		KeySchema: []*dynamodb.KeySchemaElement{
+		KeySchema: []*aws_dynamodb.KeySchemaElement{
 			{
 				AttributeName: aws.String("Code"),
 				KeyType:       aws.String("HASH"),
 			},
 		},
 		/*
-			GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+			GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
 				{
 					IndexName: aws.String("Address"),
 					KeySchema:       aws.String("HASH"),
@@ -119,7 +119,7 @@ func CreateConfirmationsTable(client *dynamodb.DynamoDB, opts *DynamoDBConfirmat
 	return true, nil
 }
 
-func hasTable(client *dynamodb.DynamoDB, table string) (bool, error) {
+func hasTable(client *aws_dynamodb.DynamoDB, table string) (bool, error) {
 
 	tables, err := listTables(client)
 
@@ -140,11 +140,11 @@ func hasTable(client *dynamodb.DynamoDB, table string) (bool, error) {
 	return has_table, nil
 }
 
-func listTables(client *dynamodb.DynamoDB) ([]string, error) {
+func listTables(client *aws_dynamodb.DynamoDB) ([]string, error) {
 
 	tables := make([]string, 0)
 
-	input := &dynamodb.ListTablesInput{}
+	input := &aws_dynamodb.ListTablesInput{}
 
 	for {
 

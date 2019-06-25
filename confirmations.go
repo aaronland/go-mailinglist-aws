@@ -7,7 +7,7 @@ import (
 	"github.com/aaronland/go-mailinglist/confirmation"
 	"github.com/aaronland/go-mailinglist/database"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 type DynamoDBConfirmationsDatabaseOptions struct {
@@ -27,7 +27,7 @@ func DefaultDynamoDBConfirmationsDatabaseOptions() *DynamoDBConfirmationsDatabas
 
 type DynamoDBConfirmationsDatabase struct {
 	database.ConfirmationsDatabase
-	client  *dynamodb.DynamoDB
+	client  *aws_dynamodb.DynamoDB
 	options *DynamoDBConfirmationsDatabaseOptions
 }
 
@@ -44,7 +44,7 @@ func NewDynamoDBConfirmationsDatabaseWithDSN(dsn string, opts *DynamoDBConfirmat
 
 func NewDynamoDBConfirmationsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBConfirmationsDatabaseOptions) (database.ConfirmationsDatabase, error) {
 
-	client := dynamodb.New(sess)
+	client := aws_dynamodb.New(sess)
 
 	_, err := CreateConfirmationsTable(client, opts)
 

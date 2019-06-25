@@ -7,7 +7,7 @@ import (
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/subscription"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 type DynamoDBSubscriptionsDatabaseOptions struct {
@@ -27,7 +27,7 @@ func DefaultDynamoDBSubscriptionsDatabaseOptions() *DynamoDBSubscriptionsDatabas
 
 type DynamoDBSubscriptionsDatabase struct {
 	database.SubscriptionsDatabase
-	client  *dynamodb.DynamoDB
+	client  *aws_dynamodb.DynamoDB
 	options *DynamoDBSubscriptionsDatabaseOptions
 }
 
@@ -44,7 +44,7 @@ func NewDynamoDBSubscriptionsDatabaseWithDSN(dsn string, opts *DynamoDBSubscript
 
 func NewDynamoDBSubscriptionsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBSubscriptionsDatabaseOptions) (database.SubscriptionsDatabase, error) {
 
-	client := dynamodb.New(sess)
+	client := aws_dynamodb.New(sess)
 
 	_, err := CreateSubscriptionsTable(client, opts)
 
