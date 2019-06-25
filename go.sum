@@ -8,6 +8,7 @@ github.com/aaronland/go-mailinglist v0.0.1 h1:nGm6zWGtzuAf42xPQugz8CpgCYbh0yTIn5
 github.com/aaronland/go-mailinglist v0.0.1/go.mod h1:lsy4SjLT3JYqeYwOGRRD36bZmnnedw70hFW+qOVsQsI=
 github.com/aaronland/go-mailinglist v0.0.2 h1:ZpW0RpGxJ+SZLzkbpUTzGJtra42bhNZMMrEo70Yg74o=
 github.com/aaronland/go-mailinglist v0.0.2/go.mod h1:ofWZzXcpgDX+4ngy49Y7pjLwhppXDvdjJXUV4t0TqBI=
+github.com/aaronland/go-mailinglist-database-dynamodb v0.0.0-20190625145636-52fb681436f8 h1:UiNZHaK0G+2oMmaoKc5OyiyzHdJ+mD0MaD1La9pwpRU=
 github.com/aaronland/go-string v0.1.0 h1:HU6OHmEpN2m9b5SOIwU6HoOq87Fvemj/0g6DTp8yzpk=
 github.com/aaronland/go-string v0.1.0/go.mod h1:2aMIWdTqk63jZsaLLy+p9dsB1MDRqx4sHYoLtkwyYUo=
 github.com/aaronland/gomail v2.0.1+incompatible h1:qCaawLvpmMWSbaBfLvUUcuWMXiksfZINc7WQjqjGKXo=

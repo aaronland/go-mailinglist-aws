@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/aaronland/go-mailinglist-aws/database/dynamodb"
+	"github.com/aaronland/go-mailinglist-database-dynamodb"
 	"log"
 )
 

@@ -1,4 +1,4 @@
-module github.com/aaronland/go-mailinglist-aws
+module github.com/aaronland/go-mailinglist-database-dynamodb
 
 require (
 	github.com/aaronland/go-aws-session v0.0.2
