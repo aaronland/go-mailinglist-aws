@@ -13,7 +13,6 @@ package dynamodb
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions) (bool, error) {
@@ -201,26 +200,4 @@ func listTables(client *aws_dynamodb.DynamoDB) ([]string, error) {
 	}
 
 	return tables, nil
-}
-
-func PutItem(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions, item interface{}) error {
-
-	enc_item, err := aws_dynamodbattribute.MarshalMap(item)
-
-	if err != nil {
-		return err
-	}
-
-	req := &aws_dynamodb.PutItemInput{
-		Item:      enc_item,
-		TableName: aws.String(opts.TableName),
-	}
-
-	_, err = client.PutItem(req)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

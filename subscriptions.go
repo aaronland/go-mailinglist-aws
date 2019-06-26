@@ -113,7 +113,7 @@ func (db *DynamoDBSubscriptionsDatabase) AddSubscription(sub *subscription.Subsc
 		return errors.New("Subscription already exists")
 	}
 
-	return PutItem(db.client, db.options, sub)
+	return putSubscription(db.client, db.options, sub)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Subscription) error {
@@ -138,7 +138,7 @@ func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Su
 
 func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Subscription) error {
 
-	return PutItem(db.client, db.options, sub)
+	return putSubscription(db.client, db.options, sub)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
@@ -147,4 +147,26 @@ func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsUnconfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
 	return errors.New("Please write me")
+}
+
+func putSubscription(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions, sub *subscription.Subscription) error {
+
+	item, err := aws_dynamodbattribute.MarshalMap(sub)
+
+	if err != nil {
+		return err
+	}
+
+	req := &aws_dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(opts.TableName),
+	}
+
+	_, err = client.PutItem(req)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
