@@ -1,10 +1,12 @@
 package dynamodb
 
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html
+
 // https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-list-tables.html
 // https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-create-table.html
-// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html#HowItWorks.CoreComponents.TablesItemsAttributes
-// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#CreateTableInput
 
+// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#CreateTableInput
 // https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#AttributeDefinition
 // https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#KeySchemaElement
 
@@ -35,6 +37,10 @@ func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubsc
 				AttributeName: aws.String("Created"),
 				AttributeType: aws.String("N"),
 			},
+			{
+				AttributeName: aws.String("Confirmed"),
+				AttributeType: aws.String("N"),
+			},
 		},
 		KeySchema: []*aws_dynamodb.KeySchemaElement{
 			{
@@ -44,6 +50,21 @@ func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubsc
 			{
 				AttributeName: aws.String("Created"),
 				KeyType:       aws.String("RANGE"),
+			},
+		},
+		GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String("Confirmed"),
+				KeySchema: []*aws_dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("Confirmed"),
+						KeyType:       aws.String("HASH"),
+					},
+				},
+				Projection: &aws_dynamodb.Projection{
+					// maybe just address...?
+					ProjectionType: aws.String("ALL"),
+				},
 			},
 		},
 		BillingMode: aws.String(opts.BillingMode),
@@ -78,6 +99,10 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 				AttributeType: aws.String("S"),
 			},
 			{
+				AttributeName: aws.String("Address"),
+				AttributeType: aws.String("S"),
+			},
+			{
 				AttributeName: aws.String("Created"),
 				AttributeType: aws.String("N"),
 			},
@@ -92,14 +117,35 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 				KeyType:       aws.String("RANGE"),
 			},
 		},
-		/*
-			GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
-				{
-					IndexName: aws.String("Address"),
-					KeySchema:       aws.String("HASH"),
+		GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String("Address"),
+				KeySchema: []*aws_dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("Address"),
+						KeyType:       aws.String("HASH"),
+					},
+				},
+				Projection: &aws_dynamodb.Projection{
+					ProjectionType: aws.String("ALL"),
 				},
 			},
-		*/
+			{
+				IndexName: aws.String("Created"),
+				KeySchema: []*aws_dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("Created"),
+						KeyType:       aws.String("HASH"),
+					},
+				},
+				Projection: &aws_dynamodb.Projection{
+					ProjectionType: aws.String("INCLUDE"),
+					NonKeyAttributes: []*string{
+						aws.String("Code"),
+					},
+				},
+			},
+		},
 		BillingMode: aws.String(opts.BillingMode),
 		TableName:   aws.String(opts.TableName),
 	}
