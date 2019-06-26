@@ -8,6 +8,8 @@ import (
 
 func main() {
 
+	subs_table := flag.String("subscriptions-table", dynamodb.SUBSCRIPTIONS_DEFAULT_TABLENAME, "...")
+	conf_table := flag.String("confirmations-table", dynamodb.CONFIRMATIONS_DEFAULT_TABLENAME, "...")
 	dsn := flag.String("dsn", "", "...")
 
 	// table names here... or in dsn
@@ -17,7 +19,10 @@ func main() {
 	subscribe_opts := dynamodb.DefaultDynamoDBSubscriptionsDatabaseOptions()
 	confirm_opts := dynamodb.DefaultDynamoDBConfirmationsDatabaseOptions()
 
+	subscribe_opts.TableName = *subs_table
 	subscribe_opts.CreateTable = true
+
+	confirm_opts.TableName = *conf_table
 	confirm_opts.CreateTable = true
 
 	var err error

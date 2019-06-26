@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"github.com/aaronland/go-mailinglist-database-dynamodb"
-	"github.com/aaronland/go-mailinglist/subscription"
 	"log"
 	"os"
 )
@@ -12,7 +11,6 @@ func main() {
 
 	dsn := flag.String("dsn", "", "...")
 	addr := flag.String("address", "", "...")
-	enabled := flag.Bool("enabled", false, "...")
 
 	subs_table := flag.String("subscriptions-table", dynamodb.SUBSCRIPTIONS_DEFAULT_TABLENAME, "...")
 
@@ -27,26 +25,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sub, err := subscription.NewSubscription(*addr)
+	sub, err := db.GetSubscriptionWithAddress(*addr)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if *enabled {
-		sub.Confirm()
-		sub.Enable()
-	}
-
-	err = db.AddSubscription(sub)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if !sub.IsConfirmed() {
-		log.Println("SEND CONFIRMATION HERE...")
-	}
+	log.Println("SUB", sub)
 
 	os.Exit(0)
 }

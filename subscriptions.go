@@ -6,8 +6,11 @@ import (
 	"github.com/aaronland/go-aws-session"
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/subscription"
+	aws "github.com/aws/aws-sdk-go/aws"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
+	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"log"
 )
 
 const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"
@@ -59,14 +62,55 @@ func NewDynamoDBSubscriptionsDatabaseWithSession(sess *aws_session.Session, opts
 	}
 
 	db := DynamoDBSubscriptionsDatabase{
-		client: client,
+		client:  client,
+		options: opts,
 	}
 
 	return &db, nil
 }
 
+func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string) (*subscription.Subscription, error) {
+
+	req := &aws_dynamodb.GetItemInput{
+		TableName: aws.String(db.options.TableName),
+		Key: map[string]*aws_dynamodb.AttributeValue{
+			"address": {
+				S: aws.String(addr),
+			},
+		},
+	}
+
+	rsp, err := db.client.GetItem(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println(rsp)
+
+	return nil, nil
+}
+
 func (db *DynamoDBSubscriptionsDatabase) AddSubscription(sub *subscription.Subscription) error {
-	return errors.New("Please write me")
+
+	item, err := aws_dynamodbattribute.MarshalMap(sub)
+
+	if err != nil {
+		return err
+	}
+
+	req := &aws_dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(db.options.TableName),
+	}
+
+	_, err = db.client.PutItem(req)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Subscription) error {
@@ -75,10 +119,6 @@ func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Su
 
 func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Subscription) error {
 	return errors.New("Please write me")
-}
-
-func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string) (*subscription.Subscription, error) {
-	return nil, errors.New("Please write me")
 }
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {

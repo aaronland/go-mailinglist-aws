@@ -30,25 +30,25 @@ func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubsc
 	req := &aws_dynamodb.CreateTableInput{
 		AttributeDefinitions: []*aws_dynamodb.AttributeDefinition{
 			{
-				AttributeName: aws.String("Address"),
+				AttributeName: aws.String("address"),
 				AttributeType: aws.String("S"),
 			},
 			{
-				AttributeName: aws.String("Created"),
+				AttributeName: aws.String("created"),
 				AttributeType: aws.String("N"),
 			},
 			{
-				AttributeName: aws.String("Confirmed"),
+				AttributeName: aws.String("confirmed"),
 				AttributeType: aws.String("N"),
 			},
 		},
 		KeySchema: []*aws_dynamodb.KeySchemaElement{
 			{
-				AttributeName: aws.String("Address"),
+				AttributeName: aws.String("address"),
 				KeyType:       aws.String("HASH"),
 			},
 			{
-				AttributeName: aws.String("Created"),
+				AttributeName: aws.String("created"),
 				KeyType:       aws.String("RANGE"),
 			},
 		},
@@ -57,7 +57,7 @@ func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubsc
 				IndexName: aws.String("Confirmed"),
 				KeySchema: []*aws_dynamodb.KeySchemaElement{
 					{
-						AttributeName: aws.String("Confirmed"),
+						AttributeName: aws.String("confirmed"),
 						KeyType:       aws.String("HASH"),
 					},
 				},
@@ -95,31 +95,31 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 	req := &aws_dynamodb.CreateTableInput{
 		AttributeDefinitions: []*aws_dynamodb.AttributeDefinition{
 			{
-				AttributeName: aws.String("Code"),
+				AttributeName: aws.String("code"),
 				AttributeType: aws.String("S"),
 			},
 			{
-				AttributeName: aws.String("Address"),
+				AttributeName: aws.String("address"),
 				AttributeType: aws.String("S"),
 			},
 			{
-				AttributeName: aws.String("Created"),
+				AttributeName: aws.String("created"),
 				AttributeType: aws.String("N"),
 			},
 		},
 		KeySchema: []*aws_dynamodb.KeySchemaElement{
 			{
-				AttributeName: aws.String("Code"),
+				AttributeName: aws.String("code"),
 				KeyType:       aws.String("HASH"),
 			},
 			{
-				AttributeName: aws.String("Created"),
+				AttributeName: aws.String("created"),
 				KeyType:       aws.String("RANGE"),
 			},
 		},
 		GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
 			{
-				IndexName: aws.String("Address"),
+				IndexName: aws.String("address"),
 				KeySchema: []*aws_dynamodb.KeySchemaElement{
 					{
 						AttributeName: aws.String("Address"),
@@ -131,17 +131,17 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 				},
 			},
 			{
-				IndexName: aws.String("Created"),
+				IndexName: aws.String("created"),
 				KeySchema: []*aws_dynamodb.KeySchemaElement{
 					{
-						AttributeName: aws.String("Created"),
+						AttributeName: aws.String("created"),
 						KeyType:       aws.String("HASH"),
 					},
 				},
 				Projection: &aws_dynamodb.Projection{
 					ProjectionType: aws.String("INCLUDE"),
 					NonKeyAttributes: []*string{
-						aws.String("Code"),
+						aws.String("code"),
 					},
 				},
 			},
