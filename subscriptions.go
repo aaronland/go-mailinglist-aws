@@ -86,19 +86,7 @@ func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string)
 		return nil, err
 	}
 
-	var sub *subscription.Subscription
-
-	err = aws_dynamodbattribute.UnmarshalMap(rsp.Item, &sub)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if sub.Address == "" {
-		return nil, new(database.NoRecordError)
-	}
-
-	return sub, nil
+	return itemToSubscription(rsp.Item)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) AddSubscription(sub *subscription.Subscription) error {
@@ -142,7 +130,55 @@ func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Su
 }
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
-	return errors.New("Please write me")
+
+	req := &aws_dynamodb.ScanInput{
+		/*
+			ExpressionAttributeNames: map[string]*string{
+				"AT": aws.String("AlbumTitle"),
+				"ST": aws.String("SongTitle"),
+			},
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":a": {
+					S: aws.String("No One You Know"),
+				},
+			},
+			FilterExpression:     aws.String("Artist = :a"),
+			ProjectionExpression: aws.String("#ST, #AT"),
+		*/
+		TableName: aws.String(db.options.TableName),
+	}
+
+	rsp, err := db.client.Scan(req)
+
+	if err != nil {
+		return err
+	}
+
+	for _, item := range rsp.Items {
+
+		sub, err := itemToSubscription(item)
+
+		if err != nil {
+			return err
+		}
+
+		err = callback(sub)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	 // If LastEvaluatedKey is empty, then the "last page" of results has been processed
+    // and there is no more data to be retrieved.
+    //
+    // If LastEvaluatedKey is not empty, it does not necessarily mean that there
+    // is more data in the result set. The only way to know when you have reached
+    // the end of the result set is when LastEvaluatedKey is empty.
+	// LastEvaluatedKey map[string]*AttributeValue `type:"map"`
+	// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#ScanOutput
+	
+	return nil
 }
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsUnconfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
@@ -169,4 +205,21 @@ func putSubscription(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsD
 	}
 
 	return nil
+}
+
+func itemToSubscription(item map[string]*aws_dynamodb.AttributeValue) (*subscription.Subscription, error) {
+
+	var sub *subscription.Subscription
+
+	err := aws_dynamodbattribute.UnmarshalMap(item, &sub)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if sub.Address == "" {
+		return nil, new(database.NoRecordError)
+	}
+
+	return sub, nil
 }
