@@ -31,7 +31,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("SUB", sub)
+	err = db.RemoveSubscription(sub)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	os.Exit(0)
 }

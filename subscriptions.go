@@ -10,7 +10,7 @@ import (
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"log"
+	_ "log"
 )
 
 const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"
@@ -80,7 +80,6 @@ func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string)
 		},
 	}
 
-	log.Println(req)
 	rsp, err := db.client.GetItem(req)
 
 	if err != nil {
@@ -92,7 +91,11 @@ func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string)
 	err = aws_dynamodbattribute.UnmarshalMap(rsp.Item, &sub)
 
 	if err != nil {
-	   return nil, err
+		return nil, err
+	}
+
+	if sub.Address == "" {
+		return nil, new(database.NoRecordError)
 	}
 
 	return sub, nil
@@ -100,16 +103,42 @@ func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string)
 
 func (db *DynamoDBSubscriptionsDatabase) AddSubscription(sub *subscription.Subscription) error {
 
-     return PutItem(db.client, db.options, sub)
+	existing_sub, err := db.GetSubscriptionWithAddress(sub.Address)
+
+	if err != nil && !database.IsNotExist(err) {
+		return err
+	}
+
+	if existing_sub != nil {
+		return errors.New("Subscription already exists")
+	}
+
+	return PutItem(db.client, db.options, sub)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Subscription) error {
-	return errors.New("Please write me")
+
+	req := &aws_dynamodb.DeleteItemInput{
+		TableName: aws.String(db.options.TableName),
+		Key: map[string]*aws_dynamodb.AttributeValue{
+			"address": {
+				S: aws.String(sub.Address),
+			},
+		},
+	}
+
+	_, err := db.client.DeleteItem(req)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Subscription) error {
 
-     return PutItem(db.client, db.options, sub)
+	return PutItem(db.client, db.options, sub)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {

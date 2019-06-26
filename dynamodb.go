@@ -35,10 +35,6 @@ func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubsc
 				AttributeType: aws.String("S"),
 			},
 			{
-				AttributeName: aws.String("created"),
-				AttributeType: aws.String("N"),
-			},
-			{
 				AttributeName: aws.String("confirmed"),
 				AttributeType: aws.String("N"),
 			},
@@ -48,14 +44,10 @@ func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubsc
 				AttributeName: aws.String("address"),
 				KeyType:       aws.String("HASH"),
 			},
-			{
-				AttributeName: aws.String("created"),
-				KeyType:       aws.String("RANGE"),
-			},
 		},
 		GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
 			{
-				IndexName: aws.String("Confirmed"),
+				IndexName: aws.String("confirmed"),
 				KeySchema: []*aws_dynamodb.KeySchemaElement{
 					{
 						AttributeName: aws.String("confirmed"),
