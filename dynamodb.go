@@ -4,7 +4,9 @@ package dynamodb
 // https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-create-table.html
 // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html#HowItWorks.CoreComponents.TablesItemsAttributes
 // https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#CreateTableInput
+
 // https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#AttributeDefinition
+// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#KeySchemaElement
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
@@ -33,19 +35,15 @@ func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubsc
 				AttributeName: aws.String("Created"),
 				AttributeType: aws.String("N"),
 			},
-			{
-				AttributeName: aws.String("Confirmed"),
-				AttributeType: aws.String("N"),
-			},
-			{
-				AttributeName: aws.String("Status"),
-				AttributeType: aws.String("N"),
-			},
 		},
 		KeySchema: []*aws_dynamodb.KeySchemaElement{
 			{
 				AttributeName: aws.String("Address"),
 				KeyType:       aws.String("HASH"),
+			},
+			{
+				AttributeName: aws.String("Created"),
+				KeyType:       aws.String("RANGE"),
 			},
 		},
 		BillingMode: aws.String(opts.BillingMode),
@@ -80,15 +78,7 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 				AttributeType: aws.String("S"),
 			},
 			{
-				AttributeName: aws.String("Action"),
-				AttributeType: aws.String("S"),
-			},
-			{
 				AttributeName: aws.String("Created"),
-				AttributeType: aws.String("N"),
-			},
-			{
-				AttributeName: aws.String("Status"),
 				AttributeType: aws.String("N"),
 			},
 		},
@@ -96,6 +86,10 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 			{
 				AttributeName: aws.String("Code"),
 				KeyType:       aws.String("HASH"),
+			},
+			{
+				AttributeName: aws.String("Created"),
+				KeyType:       aws.String("RANGE"),
 			},
 		},
 		/*
