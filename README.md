@@ -1,4 +1,4 @@
-# go-mailinglist-aws
+# go-mailinglist-database-dynamodb
 
 Wet paint and work in progress.
 
