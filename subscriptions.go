@@ -80,37 +80,27 @@ func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string)
 		},
 	}
 
+	log.Println(req)
 	rsp, err := db.client.GetItem(req)
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println(rsp)
+	var sub *subscription.Subscription
 
-	return nil, nil
+	err = aws_dynamodbattribute.UnmarshalMap(rsp.Item, &sub)
+
+	if err != nil {
+	   return nil, err
+	}
+
+	return sub, nil
 }
 
 func (db *DynamoDBSubscriptionsDatabase) AddSubscription(sub *subscription.Subscription) error {
 
-	item, err := aws_dynamodbattribute.MarshalMap(sub)
-
-	if err != nil {
-		return err
-	}
-
-	req := &aws_dynamodb.PutItemInput{
-		Item:      item,
-		TableName: aws.String(db.options.TableName),
-	}
-
-	_, err = db.client.PutItem(req)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+     return PutItem(db.client, db.options, sub)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Subscription) error {
@@ -118,7 +108,8 @@ func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Su
 }
 
 func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Subscription) error {
-	return errors.New("Please write me")
+
+     return PutItem(db.client, db.options, sub)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
