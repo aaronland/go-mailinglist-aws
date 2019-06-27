@@ -129,13 +129,24 @@ func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Su
 	return putSubscription(db.client, db.options, sub)
 }
 
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBMapper.QueryScanExample.html
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html#Scan.FilterExpression
+// https://github.com/markuscraig/dynamodb-examples/blob/master/go/movies_scan.go
+// https://github.com/markuscraig/dynamodb-examples/blob/master/go/movies_query_year.go
+
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
 
-	// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html#Scan.FilterExpression
-
 	req := &aws_dynamodb.ScanInput{
-		// 	FilterExpression:     aws.String("NOT confirmed = 0"),
-		// 	ProjectionExpression: aws.String("#ST, #AT"),
+		ProjectionExpression: aws.String("#confirmed, address"),
+		FilterExpression:     aws.String("#confirmed > :zero"),
+		ExpressionAttributeNames: map[string]*string{
+			"#confirmed": aws.String("confirmed"),
+		},
+		ExpressionAttributeValues: map[string]*aws_dynamodb.AttributeValue{
+			":zero": {
+				N: aws.String("0"),
+			},
+		},
 		TableName: aws.String(db.options.TableName),
 	}
 
@@ -145,8 +156,16 @@ func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsUnconfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
 
 	req := &aws_dynamodb.ScanInput{
-		// 	FilterExpression:     aws.String("NOT confirmed = 0"),
-		// 	ProjectionExpression: aws.String("#ST, #AT"),
+		ProjectionExpression: aws.String("#confirmed, address"),
+		FilterExpression:     aws.String("#confirmed = :zero"),
+		ExpressionAttributeNames: map[string]*string{
+			"#confirmed": aws.String("confirmed"),
+		},
+		ExpressionAttributeValues: map[string]*aws_dynamodb.AttributeValue{
+			":zero": {
+				N: aws.String("0"),
+			},
+		},
 		TableName: aws.String(db.options.TableName),
 	}
 
