@@ -177,7 +177,7 @@ func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsWithStatus(ctx context
 
 	state := status[0]
 
-	str_state:= strconv.Itoa(state)
+	str_state := strconv.Itoa(state)
 
 	req := &aws_dynamodb.ScanInput{
 		ExpressionAttributeNames: map[string]*string{

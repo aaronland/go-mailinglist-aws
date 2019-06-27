@@ -11,6 +11,7 @@ package dynamodb
 // https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#KeySchemaElement
 
 import (
+	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
@@ -145,6 +146,11 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 	}
 
 	return true, nil
+}
+
+func CreateEventLogsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBEventLogsDatabaseOptions) (bool, error) {
+
+	return false, errors.New("Please write me")
 }
 
 func hasTable(client *aws_dynamodb.DynamoDB, table string) (bool, error) {
