@@ -136,6 +136,24 @@ func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Su
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
 
+	/*
+		req := &aws_dynamodb.QueryInput{
+			ProjectionExpression: aws.String("#confirmed, address"),
+			KeyConditionExpression: aws.String("#confirmed > :zero"),
+			ExpressionAttributeNames: map[string]*string{
+				"#confirmed": aws.String("confirmed"),
+			},
+			ExpressionAttributeValues: map[string]*aws_dynamodb.AttributeValue{
+				":zero": {
+					N: aws.String("0"),
+				},
+			},
+			TableName: aws.String(db.options.TableName),
+		}
+
+		return querySubscriptions(ctx, db.client, req, callback)
+	*/
+
 	req := &aws_dynamodb.ScanInput{
 		ProjectionExpression: aws.String("#confirmed, address"),
 		FilterExpression:     aws.String("#confirmed > :zero"),
@@ -209,6 +227,41 @@ func itemToSubscription(item map[string]*aws_dynamodb.AttributeValue) (*subscrip
 	}
 
 	return sub, nil
+}
+
+func querySubscriptions(ctx context.Context, client *aws_dynamodb.DynamoDB, req *aws_dynamodb.QueryInput, callback database.ListSubscriptionsFunc) error {
+
+	for {
+
+		rsp, err := client.Query(req)
+
+		if err != nil {
+			return err
+		}
+
+		for _, item := range rsp.Items {
+
+			sub, err := itemToSubscription(item)
+
+			if err != nil {
+				return err
+			}
+
+			err = callback(sub)
+
+			if err != nil {
+				return err
+			}
+		}
+
+		req.ExclusiveStartKey = rsp.LastEvaluatedKey
+
+		if rsp.LastEvaluatedKey == nil {
+			break
+		}
+	}
+
+	return nil
 }
 
 func scanSubscriptions(ctx context.Context, client *aws_dynamodb.DynamoDB, req *aws_dynamodb.ScanInput, callback database.ListSubscriptionsFunc) error {
