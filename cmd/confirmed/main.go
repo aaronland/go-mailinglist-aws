@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/aaronland/go-mailinglist-database-dynamodb"
-	"github.com/aaronland/go-mailinglist/subscription"	
+	"github.com/aaronland/go-mailinglist/subscription"
 	"log"
 	"os"
 )
