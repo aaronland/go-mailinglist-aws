@@ -6,6 +6,8 @@ github.com/aaronland/go-http-rewrite v0.0.1/go.mod h1:g62jjXpsArD0lzJLs9bVLR9Loc
 github.com/aaronland/go-http-sanitize v0.0.1/go.mod h1:qUi4rzUPcpMntpUFnHK00yQI5vd/Q7x9MFYwX91/ygI=
 github.com/aaronland/go-mailinglist v0.0.3 h1:c/iLTZ+2Jle/LI7pX/ObVwVv3+R/agRpZq33ks7F1XI=
 github.com/aaronland/go-mailinglist v0.0.3/go.mod h1:ofWZzXcpgDX+4ngy49Y7pjLwhppXDvdjJXUV4t0TqBI=
+github.com/aaronland/go-mailinglist v0.0.4 h1:U7BB63Gc7Kvf1T3DlJMbHjFeMoZTPtqA+mvSVhtNLUg=
+github.com/aaronland/go-mailinglist v0.0.4/go.mod h1:ofWZzXcpgDX+4ngy49Y7pjLwhppXDvdjJXUV4t0TqBI=
 github.com/aaronland/go-string v0.1.0 h1:HU6OHmEpN2m9b5SOIwU6HoOq87Fvemj/0g6DTp8yzpk=
 github.com/aaronland/go-string v0.1.0/go.mod h1:2aMIWdTqk63jZsaLLy+p9dsB1MDRqx4sHYoLtkwyYUo=
 github.com/aaronland/gomail v2.0.1+incompatible h1:qCaawLvpmMWSbaBfLvUUcuWMXiksfZINc7WQjqjGKXo=

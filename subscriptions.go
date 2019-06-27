@@ -11,6 +11,7 @@ import (
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	_ "log"
+	"strconv"
 )
 
 const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"
@@ -134,7 +135,7 @@ func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Su
 // https://github.com/markuscraig/dynamodb-examples/blob/master/go/movies_scan.go
 // https://github.com/markuscraig/dynamodb-examples/blob/master/go/movies_query_year.go
 
-func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
+func (db *DynamoDBSubscriptionsDatabase) ListSubscriptions(ctx context.Context, callback database.ListSubscriptionsFunc) error {
 
 	/*
 		req := &aws_dynamodb.QueryInput{
@@ -155,36 +156,41 @@ func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsConfirmed(ctx context.
 	*/
 
 	req := &aws_dynamodb.ScanInput{
-		ProjectionExpression: aws.String("#confirmed, address"),
-		FilterExpression:     aws.String("#confirmed > :zero"),
-		ExpressionAttributeNames: map[string]*string{
-			"#confirmed": aws.String("confirmed"),
-		},
-		ExpressionAttributeValues: map[string]*aws_dynamodb.AttributeValue{
-			":zero": {
-				N: aws.String("0"),
-			},
-		},
 		TableName: aws.String(db.options.TableName),
 	}
 
 	return scanSubscriptions(ctx, db.client, req, callback)
 }
 
-func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsUnconfirmed(ctx context.Context, callback database.ListSubscriptionsFunc) error {
+func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsWithStatus(ctx context.Context, callback database.ListSubscriptionsFunc, status ...int) error {
+
+	if len(status) == 0 {
+		return errors.New("Missing status(es)")
+	}
+
+	if len(status) > 1 {
+		return errors.New("Multiple status(es) are not supported yet.")
+	}
+
+	// only supporting one status is not a feature - it just hasn't been implemented yet...
+	// (20190627/thisisaaronland)
+
+	state := status[0]
+
+	str_state:= strconv.Itoa(state)
 
 	req := &aws_dynamodb.ScanInput{
-		ProjectionExpression: aws.String("#confirmed, address"),
-		FilterExpression:     aws.String("#confirmed = :zero"),
 		ExpressionAttributeNames: map[string]*string{
-			"#confirmed": aws.String("confirmed"),
+			"#status": aws.String("status"),
 		},
 		ExpressionAttributeValues: map[string]*aws_dynamodb.AttributeValue{
-			":zero": {
-				N: aws.String("0"),
+			":state": {
+				N: aws.String(str_state),
 			},
 		},
-		TableName: aws.String(db.options.TableName),
+		FilterExpression:     aws.String("#status = :state"),
+		ProjectionExpression: aws.String("#status, address"),
+		TableName:            aws.String(db.options.TableName),
 	}
 
 	return scanSubscriptions(ctx, db.client, req, callback)
