@@ -1,6 +1,6 @@
 # go-mailinglist-database-dynamodb
 
-Wet paint and work in progress.
+Wet paint and work in progress. Also, not even "feature complete" yet.
 
 ## See also
 
