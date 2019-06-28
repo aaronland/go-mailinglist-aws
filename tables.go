@@ -11,7 +11,6 @@ package dynamodb
 // https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#KeySchemaElement
 
 import (
-	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
@@ -150,7 +149,80 @@ func CreateConfirmationsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBConfi
 
 func CreateEventLogsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBEventLogsDatabaseOptions) (bool, error) {
 
-	return false, errors.New("Please write me")
+	has_table, err := hasTable(client, opts.TableName)
+
+	if err != nil {
+		return false, err
+	}
+
+	if has_table {
+		return true, nil
+	}
+
+	req := &aws_dynamodb.CreateTableInput{
+		AttributeDefinitions: []*aws_dynamodb.AttributeDefinition{
+			{
+				AttributeName: aws.String("address"),
+				AttributeType: aws.String("S"),
+			},
+			{
+				AttributeName: aws.String("event"),
+				AttributeType: aws.String("N"),
+			},
+			{
+				AttributeName: aws.String("created"),
+				AttributeType: aws.String("N"),
+			},
+		},
+		KeySchema: []*aws_dynamodb.KeySchemaElement{
+			{
+				AttributeName: aws.String("address"),
+				KeyType:       aws.String("HASH"),
+			},
+			{
+				AttributeName: aws.String("created"),
+				KeyType:       aws.String("RANGE"),
+			},
+		},
+		GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String("address"),
+				KeySchema: []*aws_dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("address"),
+						KeyType:       aws.String("HASH"),
+					},
+				},
+				Projection: &aws_dynamodb.Projection{
+					// maybe just address...?
+					ProjectionType: aws.String("ALL"),
+				},
+			},
+			{
+				IndexName: aws.String("event"),
+				KeySchema: []*aws_dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("event"),
+						KeyType:       aws.String("HASH"),
+					},
+				},
+				Projection: &aws_dynamodb.Projection{
+					// maybe just address...?
+					ProjectionType: aws.String("ALL"),
+				},
+			},
+		},
+		BillingMode: aws.String(opts.BillingMode),
+		TableName:   aws.String(opts.TableName),
+	}
+
+	_, err = client.CreateTable(req)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func hasTable(client *aws_dynamodb.DynamoDB, table string) (bool, error) {
