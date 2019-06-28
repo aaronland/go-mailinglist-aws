@@ -5,11 +5,11 @@ import (
 	// "errors"
 	"github.com/aaronland/go-aws-session"
 	"github.com/aaronland/go-mailinglist/database"
-	// "github.com/aaronland/go-mailinglist/eventlog"
-	// aws "github.com/aws/aws-sdk-go/aws"
+	"github.com/aaronland/go-mailinglist/eventlog"
+	aws "github.com/aws/aws-sdk-go/aws"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	// aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	_ "log"
 )
 
@@ -67,4 +67,26 @@ func NewDynamoDBEventLogsDatabaseWithSession(sess *aws_session.Session, opts *Dy
 	}
 
 	return &db, nil
+}
+
+func (db *DynamoDBEventLogsDatabase) AddEventLog(l *eventlog.EventLog) error {
+
+	item, err := aws_dynamodbattribute.MarshalMap(l)
+
+	if err != nil {
+		return err
+	}
+
+	req := &aws_dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(db.options.TableName),
+	}
+
+	_, err = db.client.PutItem(req)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
