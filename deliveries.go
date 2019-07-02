@@ -71,13 +71,16 @@ func NewDynamoDBDeliveriesDatabaseWithSession(sess *aws_session.Session, opts *D
 	return &db, nil
 }
 
-func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithAddressAndMessage(addr, string, message_id string) (*delivery.Delivery, error) {
+func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithAddressAndMessageId(addr string, message_id string) (*delivery.Delivery, error) {
 
 	req := &aws_dynamodb.GetItemInput{
 		TableName: aws.String(db.options.TableName),
 		Key: map[string]*aws_dynamodb.AttributeValue{
 			"address": {
 				S: aws.String(addr),
+			},
+			"message_id": {
+				S: aws.String(message_id),
 			},
 		},
 	}
@@ -93,7 +96,7 @@ func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithAddressAndMessage(addr, str
 
 func (db *DynamoDBDeliveriesDatabase) AddDelivery(d *delivery.Delivery) error {
 
-	existing_d, err := db.GetDeliveryWithMessageIdAndAddress(d.MessageId, d.Address)
+	existing_d, err := db.GetDeliveryWithAddressAndMessageId(d.Address, d.MessageId)
 
 	if err != nil && !database.IsNotExist(err) {
 		return err

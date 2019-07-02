@@ -230,11 +230,11 @@ func CreateDeliveriesTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBDeliveri
 	req := &aws_dynamodb.CreateTableInput{
 		AttributeDefinitions: []*aws_dynamodb.AttributeDefinition{
 			{
-				AttributeName: aws.String("message_id"),
+				AttributeName: aws.String("address"),
 				AttributeType: aws.String("S"),
 			},
 			{
-				AttributeName: aws.String("address"),
+				AttributeName: aws.String("message_id"),
 				AttributeType: aws.String("S"),
 			},
 		},
