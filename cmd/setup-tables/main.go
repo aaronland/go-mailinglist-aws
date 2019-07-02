@@ -11,6 +11,7 @@ func main() {
 	subs_table := flag.String("subscriptions-table", dynamodb.SUBSCRIPTIONS_DEFAULT_TABLENAME, "...")
 	conf_table := flag.String("confirmations-table", dynamodb.CONFIRMATIONS_DEFAULT_TABLENAME, "...")
 	logs_table := flag.String("eventlogs-table", dynamodb.EVENTLOGS_DEFAULT_TABLENAME, "...")
+	dlvr_table := flag.String("deliveries-table", dynamodb.DELIVERIES_DEFAULT_TABLENAME, "...")
 
 	dsn := flag.String("dsn", "", "...")
 
@@ -21,6 +22,7 @@ func main() {
 	subscribe_opts := dynamodb.DefaultDynamoDBSubscriptionsDatabaseOptions()
 	confirm_opts := dynamodb.DefaultDynamoDBConfirmationsDatabaseOptions()
 	logs_opts := dynamodb.DefaultDynamoDBEventLogsDatabaseOptions()
+	dlvr_opts := dynamodb.DefaultDynamoDBDeliveriesDatabaseOptions()
 
 	subscribe_opts.TableName = *subs_table
 	subscribe_opts.CreateTable = true
@@ -30,6 +32,9 @@ func main() {
 
 	logs_opts.TableName = *logs_table
 	logs_opts.CreateTable = true
+
+	dlvr_opts.TableName = *dlvr_table
+	dlvr_opts.CreateTable = true
 
 	var err error
 
@@ -49,6 +54,12 @@ func main() {
 
 	if err != nil {
 		log.Printf("Failed to set up %s table, %s\n", logs_opts.TableName, err)
+	}
+
+	_, err = dynamodb.NewDynamoDBDeliveriesDatabaseWithDSN(*dsn, dlvr_opts)
+
+	if err != nil {
+		log.Printf("Failed to set up %s table, %s\n", dlvr_opts.TableName, err)
 	}
 
 }

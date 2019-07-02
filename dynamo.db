@@ -1,0 +1,16 @@
+package dynamodb
+
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html
+
+// https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-list-tables.html
+// https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/dynamo-example-create-table.html
+
+// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#CreateTableInput
+// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#AttributeDefinition
+// https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/#KeySchemaElement
+
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBMapper.QueryScanExample.html
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html#Scan.FilterExpression
+// https://github.com/markuscraig/dynamodb-examples/blob/master/go/movies_scan.go
+// https://github.com/markuscraig/dynamodb-examples/blob/master/go/movies_query_year.go

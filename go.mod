@@ -2,7 +2,7 @@ module github.com/aaronland/go-mailinglist-database-dynamodb
 
 require (
 	github.com/aaronland/go-aws-session v0.0.2
-	github.com/aaronland/go-mailinglist v0.0.7
+	github.com/aaronland/go-mailinglist v0.0.13
 	github.com/aws/aws-sdk-go v1.20.7
 )
 
