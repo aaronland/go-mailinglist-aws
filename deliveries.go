@@ -71,7 +71,7 @@ func NewDynamoDBDeliveriesDatabaseWithSession(sess *aws_session.Session, opts *D
 	return &db, nil
 }
 
-func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithMessageIdAndAddress(message_id string, addr string) (*delivery.Delivery, error) {
+func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithAddressAndMessage(addr, string, message_id string) (*delivery.Delivery, error) {
 
 	req := &aws_dynamodb.GetItemInput{
 		TableName: aws.String(db.options.TableName),
