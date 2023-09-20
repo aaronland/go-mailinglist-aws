@@ -1,8 +1,6 @@
 package dynamodb
 
 import (
-	// "context"
-	// "errors"
 	"github.com/aaronland/go-aws-session"
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/eventlog"
@@ -10,7 +8,6 @@ import (
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	_ "log"
 )
 
 const EVENTLOGS_DEFAULT_TABLENAME string = "eventlogs"

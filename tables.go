@@ -5,6 +5,48 @@ import (
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
+func SubscriptionTables() map[string]*aws_dynamodb.CreateTableInput {
+
+	tables := map[string]*aws_dynamodb.CreateTableInput{
+		"subscriptions": &aws_dynamodb.CreateTableInput{
+			AttributeDefinitions: []*aws_dynamodb.AttributeDefinition{
+				{
+					AttributeName: aws.String("address"),
+					AttributeType: aws.String("S"),
+				},
+				{
+					AttributeName: aws.String("status"),
+					AttributeType: aws.String("N"),
+				},
+			},
+			KeySchema: []*aws_dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("address"),
+					KeyType:       aws.String("HASH"),
+				},
+			},
+			GlobalSecondaryIndexes: []*aws_dynamodb.GlobalSecondaryIndex{
+				{
+					IndexName: aws.String("status"),
+					KeySchema: []*aws_dynamodb.KeySchemaElement{
+						{
+							AttributeName: aws.String("status"),
+							KeyType:       aws.String("HASH"),
+						},
+					},
+					Projection: &aws_dynamodb.Projection{
+						// maybe just address...?
+						ProjectionType: aws.String("ALL"),
+					},
+				},
+			},
+			BillingMode: aws.String("PAY_PER_REQUEST"),
+		}
+	}
+	
+	return tables
+}
+
 func CreateSubscriptionsTable(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions) (bool, error) {
 
 	has_table, err := hasTable(client, opts.TableName)

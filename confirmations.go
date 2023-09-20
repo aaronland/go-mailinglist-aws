@@ -3,6 +3,7 @@ package dynamodb
 import (
 	"context"
 	"errors"
+	
 	"github.com/aaronland/go-aws-session"
 	"github.com/aaronland/go-mailinglist/confirmation"
 	"github.com/aaronland/go-mailinglist/database"

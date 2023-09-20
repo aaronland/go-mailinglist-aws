@@ -3,15 +3,15 @@ package dynamodb
 import (
 	"context"
 	"errors"
+	"strconv"
+
 	"github.com/aaronland/go-aws-session"
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/subscription"
 	aws "github.com/aws/aws-sdk-go/aws"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	_ "log"
-	"strconv"
+	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"	
 )
 
 const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"

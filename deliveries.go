@@ -3,15 +3,14 @@ package dynamodb
 import (
 	"context"
 	"errors"
+
 	"github.com/aaronland/go-aws-session"
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/delivery"
 	aws "github.com/aws/aws-sdk-go/aws"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	_ "log"
-	_ "strconv"
+	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"	
 )
 
 const DELIVERIES_DEFAULT_TABLENAME string = "deliveries"
