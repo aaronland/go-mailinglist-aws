@@ -11,10 +11,11 @@ import (
 	aws "github.com/aws/aws-sdk-go/aws"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"	
+	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"
+const SUBSCRIPTIONS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBSubscriptionsDatabaseOptions struct {
 	TableName   string
@@ -26,7 +27,7 @@ func DefaultDynamoDBSubscriptionsDatabaseOptions() *DynamoDBSubscriptionsDatabas
 
 	opts := DynamoDBSubscriptionsDatabaseOptions{
 		TableName:   SUBSCRIPTIONS_DEFAULT_TABLENAME,
-		BillingMode: "PAY_PER_REQUEST",
+		BillingMode: SUBSCRIPTIONS_DEFAULT_BILLINGMODE,
 		CreateTable: false,
 	}
 

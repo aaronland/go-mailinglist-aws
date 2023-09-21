@@ -11,6 +11,7 @@ import (
 )
 
 const EVENTLOGS_DEFAULT_TABLENAME string = "eventlogs"
+const EVENTLOGS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBEventLogsDatabaseOptions struct {
 	TableName   string
@@ -22,7 +23,7 @@ func DefaultDynamoDBEventLogsDatabaseOptions() *DynamoDBEventLogsDatabaseOptions
 
 	opts := DynamoDBEventLogsDatabaseOptions{
 		TableName:   EVENTLOGS_DEFAULT_TABLENAME,
-		BillingMode: "PAY_PER_REQUEST",
+		BillingMode: EVENTLOGS_DEFAULT_BILLINGMODE,
 		CreateTable: false,
 	}
 

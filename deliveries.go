@@ -10,10 +10,11 @@ import (
 	aws "github.com/aws/aws-sdk-go/aws"
 	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"	
+	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 const DELIVERIES_DEFAULT_TABLENAME string = "deliveries"
+const DELIVERIES_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBDeliveriesDatabaseOptions struct {
 	TableName   string
@@ -25,7 +26,7 @@ func DefaultDynamoDBDeliveriesDatabaseOptions() *DynamoDBDeliveriesDatabaseOptio
 
 	opts := DynamoDBDeliveriesDatabaseOptions{
 		TableName:   DELIVERIES_DEFAULT_TABLENAME,
-		BillingMode: "PAY_PER_REQUEST",
+		BillingMode: DELIVERIES_DEFAULT_BILLINGMODE,
 		CreateTable: false,
 	}
 

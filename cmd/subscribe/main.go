@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/aaronland/go-mailinglist-database-dynamodb"
-	"github.com/aaronland/go-mailinglist/subscription"
 	"log"
 	"os"
+
+	"github.com/aaronland/go-mailinglist-database-dynamodb"
+	"github.com/aaronland/go-mailinglist/subscription"
 )
 
 func main() {

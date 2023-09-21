@@ -3,9 +3,10 @@ package main
 import (
 	"errors"
 	"flag"
-	"github.com/aaronland/go-mailinglist-database-dynamodb"
 	"log"
 	"os"
+
+	"github.com/aaronland/go-mailinglist-database-dynamodb"
 )
 
 func main() {

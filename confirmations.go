@@ -3,7 +3,7 @@ package dynamodb
 import (
 	"context"
 	"errors"
-	
+
 	"github.com/aaronland/go-aws-session"
 	"github.com/aaronland/go-mailinglist/confirmation"
 	"github.com/aaronland/go-mailinglist/database"
@@ -14,6 +14,7 @@ import (
 )
 
 const CONFIRMATIONS_DEFAULT_TABLENAME string = "confirmations"
+const CONFIRMATIONS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBConfirmationsDatabaseOptions struct {
 	TableName   string
@@ -25,7 +26,7 @@ func DefaultDynamoDBConfirmationsDatabaseOptions() *DynamoDBConfirmationsDatabas
 
 	opts := DynamoDBConfirmationsDatabaseOptions{
 		TableName:   CONFIRMATIONS_DEFAULT_TABLENAME,
-		BillingMode: "PAY_PER_REQUEST",
+		BillingMode: CONFIRMATIONS_DEFAULT_BILLINGMODE,
 		CreateTable: false,
 	}
 
