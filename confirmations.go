@@ -17,17 +17,13 @@ const CONFIRMATIONS_DEFAULT_TABLENAME string = "confirmations"
 const CONFIRMATIONS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBConfirmationsDatabaseOptions struct {
-	TableName   string
-	BillingMode string
-	CreateTable bool
+	TableName string
 }
 
 func DefaultDynamoDBConfirmationsDatabaseOptions() *DynamoDBConfirmationsDatabaseOptions {
 
 	opts := DynamoDBConfirmationsDatabaseOptions{
-		TableName:   CONFIRMATIONS_DEFAULT_TABLENAME,
-		BillingMode: CONFIRMATIONS_DEFAULT_BILLINGMODE,
-		CreateTable: false,
+		TableName: CONFIRMATIONS_DEFAULT_TABLENAME,
 	}
 
 	return &opts
@@ -53,15 +49,6 @@ func NewDynamoDBConfirmationsDatabaseWithDSN(dsn string, opts *DynamoDBConfirmat
 func NewDynamoDBConfirmationsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBConfirmationsDatabaseOptions) (database.ConfirmationsDatabase, error) {
 
 	client := aws_dynamodb.New(sess)
-
-	if opts.CreateTable {
-
-		_, err := CreateConfirmationsTable(client, opts)
-
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	db := DynamoDBConfirmationsDatabase{
 		client:  client,

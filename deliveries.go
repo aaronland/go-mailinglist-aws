@@ -17,17 +17,13 @@ const DELIVERIES_DEFAULT_TABLENAME string = "deliveries"
 const DELIVERIES_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBDeliveriesDatabaseOptions struct {
-	TableName   string
-	BillingMode string
-	CreateTable bool
+	TableName string
 }
 
 func DefaultDynamoDBDeliveriesDatabaseOptions() *DynamoDBDeliveriesDatabaseOptions {
 
 	opts := DynamoDBDeliveriesDatabaseOptions{
-		TableName:   DELIVERIES_DEFAULT_TABLENAME,
-		BillingMode: DELIVERIES_DEFAULT_BILLINGMODE,
-		CreateTable: false,
+		TableName: DELIVERIES_DEFAULT_TABLENAME,
 	}
 
 	return &opts
@@ -53,15 +49,6 @@ func NewDynamoDBDeliveriesDatabaseWithDSN(dsn string, opts *DynamoDBDeliveriesDa
 func NewDynamoDBDeliveriesDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBDeliveriesDatabaseOptions) (database.DeliveriesDatabase, error) {
 
 	client := aws_dynamodb.New(sess)
-
-	if opts.CreateTable {
-
-		_, err := CreateDeliveriesTable(client, opts)
-
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	db := DynamoDBDeliveriesDatabase{
 		client:  client,

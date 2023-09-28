@@ -18,17 +18,13 @@ const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"
 const SUBSCRIPTIONS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBSubscriptionsDatabaseOptions struct {
-	TableName   string
-	BillingMode string
-	CreateTable bool
+	TableName string
 }
 
 func DefaultDynamoDBSubscriptionsDatabaseOptions() *DynamoDBSubscriptionsDatabaseOptions {
 
 	opts := DynamoDBSubscriptionsDatabaseOptions{
-		TableName:   SUBSCRIPTIONS_DEFAULT_TABLENAME,
-		BillingMode: SUBSCRIPTIONS_DEFAULT_BILLINGMODE,
-		CreateTable: false,
+		TableName: SUBSCRIPTIONS_DEFAULT_TABLENAME,
 	}
 
 	return &opts
@@ -54,14 +50,6 @@ func NewDynamoDBSubscriptionsDatabaseWithDSN(dsn string, opts *DynamoDBSubscript
 func NewDynamoDBSubscriptionsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBSubscriptionsDatabaseOptions) (database.SubscriptionsDatabase, error) {
 
 	client := aws_dynamodb.New(sess)
-
-	if opts.CreateTable {
-		_, err := CreateSubscriptionsTable(client, opts)
-
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	db := DynamoDBSubscriptionsDatabase{
 		client:  client,

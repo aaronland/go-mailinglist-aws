@@ -14,17 +14,13 @@ const EVENTLOGS_DEFAULT_TABLENAME string = "eventlogs"
 const EVENTLOGS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
 type DynamoDBEventLogsDatabaseOptions struct {
-	TableName   string
-	BillingMode string
-	CreateTable bool
+	TableName string
 }
 
 func DefaultDynamoDBEventLogsDatabaseOptions() *DynamoDBEventLogsDatabaseOptions {
 
 	opts := DynamoDBEventLogsDatabaseOptions{
-		TableName:   EVENTLOGS_DEFAULT_TABLENAME,
-		BillingMode: EVENTLOGS_DEFAULT_BILLINGMODE,
-		CreateTable: false,
+		TableName: EVENTLOGS_DEFAULT_TABLENAME,
 	}
 
 	return &opts
@@ -50,14 +46,6 @@ func NewDynamoDBEventLogsDatabaseWithDSN(dsn string, opts *DynamoDBEventLogsData
 func NewDynamoDBEventLogsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBEventLogsDatabaseOptions) (database.EventLogsDatabase, error) {
 
 	client := aws_dynamodb.New(sess)
-
-	if opts.CreateTable {
-		_, err := CreateEventLogsTable(client, opts)
-
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	db := DynamoDBEventLogsDatabase{
 		client:  client,
