@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
@@ -10,29 +11,26 @@ import (
 
 func main() {
 
-	dsn := flag.String("dsn", "", "...")
+	subs_uri := flag.String("subscriptions-uri", "", "...")
 	addr := flag.String("address", "", "...")
-
-	subs_table := flag.String("subscriptions-table", dynamodb.SUBSCRIPTIONS_DEFAULT_TABLENAME, "...")
 
 	flag.Parse()
 
-	opts := dynamodb.DefaultDynamoDBSubscriptionsDatabaseOptions()
-	opts.TableName = *subs_table
+	ctx := context.Background()
 
-	db, err := dynamodb.NewDynamoDBSubscriptionsDatabaseWithDSN(*dsn, opts)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	sub, err := db.GetSubscriptionWithAddress(*addr)
+	db, err := dynamodb.NewDynamoDBSubscriptionsDatabase(ctx, *subs_uri)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = db.RemoveSubscription(sub)
+	sub, err := db.GetSubscriptionWithAddress(ctx, *addr)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = db.RemoveSubscription(ctx, sub)
 
 	if err != nil {
 		log.Fatal(err)

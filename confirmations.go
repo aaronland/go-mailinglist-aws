@@ -3,12 +3,12 @@ package dynamodb
 import (
 	"context"
 	"errors"
+	"fmt"
 
-	"github.com/aaronland/go-aws-session"
+	aa_dynamodb "github.com/aaronland/go-aws-dynamodb"
 	"github.com/aaronland/go-mailinglist/confirmation"
 	"github.com/aaronland/go-mailinglist/database"
 	aws "github.com/aws/aws-sdk-go/aws"
-	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
@@ -16,74 +16,56 @@ import (
 const CONFIRMATIONS_DEFAULT_TABLENAME string = "confirmations"
 const CONFIRMATIONS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
-type DynamoDBConfirmationsDatabaseOptions struct {
-	TableName string
-}
-
-func DefaultDynamoDBConfirmationsDatabaseOptions() *DynamoDBConfirmationsDatabaseOptions {
-
-	opts := DynamoDBConfirmationsDatabaseOptions{
-		TableName: CONFIRMATIONS_DEFAULT_TABLENAME,
-	}
-
-	return &opts
-}
-
 type DynamoDBConfirmationsDatabase struct {
 	database.ConfirmationsDatabase
-	client  *aws_dynamodb.DynamoDB
-	options *DynamoDBConfirmationsDatabaseOptions
+	client *aws_dynamodb.DynamoDB
+	table  string
 }
 
-func NewDynamoDBConfirmationsDatabaseWithDSN(dsn string, opts *DynamoDBConfirmationsDatabaseOptions) (database.ConfirmationsDatabase, error) {
+func NewDynamoDBConfirmationsDatabase(ctx context.Context, uri string) (database.ConfirmationsDatabase, error) {
 
-	sess, err := session.NewSessionWithDSN(dsn)
+	client, err := aa_dynamodb.NewClientWithURI(ctx, uri)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create session, %w", err)
 	}
 
-	return NewDynamoDBConfirmationsDatabaseWithSession(sess, opts)
-}
-
-func NewDynamoDBConfirmationsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBConfirmationsDatabaseOptions) (database.ConfirmationsDatabase, error) {
-
-	client := aws_dynamodb.New(sess)
+	table := CONFIRMATIONS_DEFAULT_TABLENAME
 
 	db := DynamoDBConfirmationsDatabase{
-		client:  client,
-		options: opts,
+		client: client,
+		table:  table,
 	}
 
 	return &db, nil
 }
 
-func (db *DynamoDBConfirmationsDatabase) AddConfirmation(conf *confirmation.Confirmation) error {
+func (db *DynamoDBConfirmationsDatabase) AddConfirmation(ctx context.Context, conf *confirmation.Confirmation) error {
 
 	item, err := aws_dynamodbattribute.MarshalMap(conf)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to marshal confirmation, %w", err)
 	}
 
 	req := &aws_dynamodb.PutItemInput{
 		Item:      item,
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 	}
 
 	_, err = db.client.PutItem(req)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to put confirmation, %w", err)
 	}
 
 	return nil
 }
 
-func (db *DynamoDBConfirmationsDatabase) RemoveConfirmation(conf *confirmation.Confirmation) error {
+func (db *DynamoDBConfirmationsDatabase) RemoveConfirmation(ctx context.Context, conf *confirmation.Confirmation) error {
 
 	req := &aws_dynamodb.DeleteItemInput{
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 		Key: map[string]*aws_dynamodb.AttributeValue{
 			"code": {
 				S: aws.String(conf.Code),
@@ -94,16 +76,16 @@ func (db *DynamoDBConfirmationsDatabase) RemoveConfirmation(conf *confirmation.C
 	_, err := db.client.DeleteItem(req)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to delete confirmation, %w", err)
 	}
 
 	return nil
 }
 
-func (db *DynamoDBConfirmationsDatabase) GetConfirmationWithCode(code string) (*confirmation.Confirmation, error) {
+func (db *DynamoDBConfirmationsDatabase) GetConfirmationWithCode(ctx context.Context, code string) (*confirmation.Confirmation, error) {
 
 	req := &aws_dynamodb.GetItemInput{
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 		Key: map[string]*aws_dynamodb.AttributeValue{
 			"code": {
 				S: aws.String(code),
@@ -114,7 +96,7 @@ func (db *DynamoDBConfirmationsDatabase) GetConfirmationWithCode(code string) (*
 	rsp, err := db.client.GetItem(req)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to get confirmation, %w", err)
 	}
 
 	var conf *confirmation.Confirmation
@@ -122,7 +104,7 @@ func (db *DynamoDBConfirmationsDatabase) GetConfirmationWithCode(code string) (*
 	err = aws_dynamodbattribute.UnmarshalMap(rsp.Item, &conf)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to unmarshal confirmation, %w", err)
 	}
 
 	if conf.Code == "" {

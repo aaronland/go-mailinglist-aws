@@ -3,13 +3,13 @@ package dynamodb
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 
-	"github.com/aaronland/go-aws-session"
+	aa_dynamodb "github.com/aaronland/go-aws-dynamodb"
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/subscription"
 	aws "github.com/aws/aws-sdk-go/aws"
-	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
@@ -17,52 +17,34 @@ import (
 const SUBSCRIPTIONS_DEFAULT_TABLENAME string = "subscriptions"
 const SUBSCRIPTIONS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
-type DynamoDBSubscriptionsDatabaseOptions struct {
-	TableName string
-}
-
-func DefaultDynamoDBSubscriptionsDatabaseOptions() *DynamoDBSubscriptionsDatabaseOptions {
-
-	opts := DynamoDBSubscriptionsDatabaseOptions{
-		TableName: SUBSCRIPTIONS_DEFAULT_TABLENAME,
-	}
-
-	return &opts
-}
-
 type DynamoDBSubscriptionsDatabase struct {
 	database.SubscriptionsDatabase
-	client  *aws_dynamodb.DynamoDB
-	options *DynamoDBSubscriptionsDatabaseOptions
+	client *aws_dynamodb.DynamoDB
+	table  string
 }
 
-func NewDynamoDBSubscriptionsDatabaseWithDSN(dsn string, opts *DynamoDBSubscriptionsDatabaseOptions) (database.SubscriptionsDatabase, error) {
+func NewDynamoDBSubscriptionsDatabase(ctx context.Context, uri string) (database.SubscriptionsDatabase, error) {
 
-	sess, err := session.NewSessionWithDSN(dsn)
+	client, err := aa_dynamodb.NewClientWithURI(ctx, uri)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create session, %w", err)
 	}
 
-	return NewDynamoDBSubscriptionsDatabaseWithSession(sess, opts)
-}
-
-func NewDynamoDBSubscriptionsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBSubscriptionsDatabaseOptions) (database.SubscriptionsDatabase, error) {
-
-	client := aws_dynamodb.New(sess)
+	table := SUBSCRIPTIONS_DEFAULT_TABLENAME
 
 	db := DynamoDBSubscriptionsDatabase{
-		client:  client,
-		options: opts,
+		client: client,
+		table:  table,
 	}
 
 	return &db, nil
 }
 
-func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string) (*subscription.Subscription, error) {
+func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(ctx context.Context, addr string) (*subscription.Subscription, error) {
 
 	req := &aws_dynamodb.GetItemInput{
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 		Key: map[string]*aws_dynamodb.AttributeValue{
 			"address": {
 				S: aws.String(addr),
@@ -79,9 +61,9 @@ func (db *DynamoDBSubscriptionsDatabase) GetSubscriptionWithAddress(addr string)
 	return itemToSubscription(rsp.Item)
 }
 
-func (db *DynamoDBSubscriptionsDatabase) AddSubscription(sub *subscription.Subscription) error {
+func (db *DynamoDBSubscriptionsDatabase) AddSubscription(ctx context.Context, sub *subscription.Subscription) error {
 
-	existing_sub, err := db.GetSubscriptionWithAddress(sub.Address)
+	existing_sub, err := db.GetSubscriptionWithAddress(ctx, sub.Address)
 
 	if err != nil && !database.IsNotExist(err) {
 		return err
@@ -91,13 +73,13 @@ func (db *DynamoDBSubscriptionsDatabase) AddSubscription(sub *subscription.Subsc
 		return errors.New("Subscription already exists")
 	}
 
-	return putSubscription(db.client, db.options, sub)
+	return db.putSubscription(ctx, sub)
 }
 
-func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Subscription) error {
+func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(ctx context.Context, sub *subscription.Subscription) error {
 
 	req := &aws_dynamodb.DeleteItemInput{
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 		Key: map[string]*aws_dynamodb.AttributeValue{
 			"address": {
 				S: aws.String(sub.Address),
@@ -114,9 +96,9 @@ func (db *DynamoDBSubscriptionsDatabase) RemoveSubscription(sub *subscription.Su
 	return nil
 }
 
-func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(sub *subscription.Subscription) error {
+func (db *DynamoDBSubscriptionsDatabase) UpdateSubscription(ctx context.Context, sub *subscription.Subscription) error {
 
-	return putSubscription(db.client, db.options, sub)
+	return db.putSubscription(ctx, sub)
 }
 
 // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBMapper.QueryScanExample.html
@@ -138,17 +120,17 @@ func (db *DynamoDBSubscriptionsDatabase) ListSubscriptions(ctx context.Context, 
 					N: aws.String("0"),
 				},
 			},
-			TableName: aws.String(db.options.TableName),
+			TableName: aws.String(db.table),
 		}
 
 		return querySubscriptions(ctx, db.client, req, callback)
 	*/
 
 	req := &aws_dynamodb.ScanInput{
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 	}
 
-	return scanSubscriptions(ctx, db.client, req, callback)
+	return db.scanSubscriptions(ctx, req, callback)
 }
 
 func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsWithStatus(ctx context.Context, callback database.ListSubscriptionsFunc, status ...int) error {
@@ -179,13 +161,13 @@ func (db *DynamoDBSubscriptionsDatabase) ListSubscriptionsWithStatus(ctx context
 		},
 		FilterExpression:     aws.String("#status = :state"),
 		ProjectionExpression: aws.String("#status, address"),
-		TableName:            aws.String(db.options.TableName),
+		TableName:            aws.String(db.table),
 	}
 
-	return scanSubscriptions(ctx, db.client, req, callback)
+	return db.scanSubscriptions(ctx, req, callback)
 }
 
-func putSubscription(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsDatabaseOptions, sub *subscription.Subscription) error {
+func (db *DynamoDBSubscriptionsDatabase) putSubscription(ctx context.Context, sub *subscription.Subscription) error {
 
 	item, err := aws_dynamodbattribute.MarshalMap(sub)
 
@@ -195,10 +177,10 @@ func putSubscription(client *aws_dynamodb.DynamoDB, opts *DynamoDBSubscriptionsD
 
 	req := &aws_dynamodb.PutItemInput{
 		Item:      item,
-		TableName: aws.String(opts.TableName),
+		TableName: aws.String(db.table),
 	}
 
-	_, err = client.PutItem(req)
+	_, err = db.client.PutItem(req)
 
 	if err != nil {
 		return err
@@ -242,7 +224,7 @@ func querySubscriptions(ctx context.Context, client *aws_dynamodb.DynamoDB, req 
 				return err
 			}
 
-			err = callback(sub)
+			err = callback(ctx, sub)
 
 			if err != nil {
 				return err
@@ -259,11 +241,11 @@ func querySubscriptions(ctx context.Context, client *aws_dynamodb.DynamoDB, req 
 	return nil
 }
 
-func scanSubscriptions(ctx context.Context, client *aws_dynamodb.DynamoDB, req *aws_dynamodb.ScanInput, callback database.ListSubscriptionsFunc) error {
+func (db *DynamoDBSubscriptionsDatabase) scanSubscriptions(ctx context.Context, req *aws_dynamodb.ScanInput, callback database.ListSubscriptionsFunc) error {
 
 	for {
 
-		rsp, err := client.Scan(req)
+		rsp, err := db.client.Scan(req)
 
 		if err != nil {
 			return err
@@ -277,7 +259,7 @@ func scanSubscriptions(ctx context.Context, client *aws_dynamodb.DynamoDB, req *
 				return err
 			}
 
-			err = callback(sub)
+			err = callback(ctx, sub)
 
 			if err != nil {
 				return err

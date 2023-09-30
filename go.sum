@@ -18,6 +18,8 @@ github.com/Azure/go-autorest v12.0.0+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSW
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/GoogleCloudPlatform/cloudsql-proxy v0.0.0-20190605020000-c4ba1fdf4d36/go.mod h1:aJ4qN3TfrelA6NZ6AXsXRfmEVaYin3EDbSPJrKS8OXo=
 github.com/MichaelTJones/walk v0.0.0-20161122175330-4748e29d5718/go.mod h1:VVwKsx9Dc8rNG55BWqogoJzGubjKnRoXdUvpGbWqeCc=
+github.com/aaronland/go-aws-dynamodb v0.0.5 h1:E0tJhlr3o5fBFk3svIyzT92auYj6usl+XCwJkvwOxwA=
+github.com/aaronland/go-aws-dynamodb v0.0.5/go.mod h1:5nmPIpi+u1NOTEt2G/MoiYAO+yCWAs0hWijgchRomWM=
 github.com/aaronland/go-aws-session v0.0.3/go.mod h1:nc4r+JFoGM6sop/lTspmUDcRIUW/V2NWs9Nd6jQWk90=
 github.com/aaronland/go-aws-session v0.2.1 h1:sNCuxR1w2ng8fxHsl08AFcAWvZqmN4hmnBbBRNRORd0=
 github.com/aaronland/go-aws-session v0.2.1/go.mod h1:M5imkutLPvwnI1Bb38minI3TCy1eSvwP6odMtCmBzqk=

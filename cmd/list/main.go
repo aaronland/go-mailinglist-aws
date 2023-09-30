@@ -4,25 +4,23 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"github.com/aaronland/go-mailinglist-database-dynamodb"
-	"github.com/aaronland/go-mailinglist/subscription"
 	"log"
 	"os"
+
+	"github.com/aaronland/go-mailinglist-database-dynamodb"
+	"github.com/aaronland/go-mailinglist/subscription"
 )
 
 func main() {
 
-	dsn := flag.String("dsn", "", "...")
+	subs_uri := flag.String("subscriptions-uri", "", "...")
 	str_status := flag.String("status", "", "...")
-
-	subs_table := flag.String("subscriptions-table", dynamodb.SUBSCRIPTIONS_DEFAULT_TABLENAME, "...")
 
 	flag.Parse()
 
-	opts := dynamodb.DefaultDynamoDBSubscriptionsDatabaseOptions()
-	opts.TableName = *subs_table
+	ctx := context.Background()
 
-	db, err := dynamodb.NewDynamoDBSubscriptionsDatabaseWithDSN(*dsn, opts)
+	db, err := dynamodb.NewDynamoDBSubscriptionsDatabase(ctx, *subs_uri)
 
 	if err != nil {
 		log.Fatal(err)
@@ -47,10 +45,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	cb := func(sub *subscription.Subscription) error {
+	cb := func(ctx context.Context, sub *subscription.Subscription) error {
 		log.Println(sub.Address)
 		return nil
 	}

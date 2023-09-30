@@ -3,12 +3,12 @@ package dynamodb
 import (
 	"context"
 	"errors"
+	"fmt"
 
-	"github.com/aaronland/go-aws-session"
+	aa_dynamodb "github.com/aaronland/go-aws-dynamodb"
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/delivery"
 	aws "github.com/aws/aws-sdk-go/aws"
-	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
@@ -16,52 +16,34 @@ import (
 const DELIVERIES_DEFAULT_TABLENAME string = "deliveries"
 const DELIVERIES_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
-type DynamoDBDeliveriesDatabaseOptions struct {
-	TableName string
-}
-
-func DefaultDynamoDBDeliveriesDatabaseOptions() *DynamoDBDeliveriesDatabaseOptions {
-
-	opts := DynamoDBDeliveriesDatabaseOptions{
-		TableName: DELIVERIES_DEFAULT_TABLENAME,
-	}
-
-	return &opts
-}
-
 type DynamoDBDeliveriesDatabase struct {
 	database.DeliveriesDatabase
-	client  *aws_dynamodb.DynamoDB
-	options *DynamoDBDeliveriesDatabaseOptions
+	client *aws_dynamodb.DynamoDB
+	table  string
 }
 
-func NewDynamoDBDeliveriesDatabaseWithDSN(dsn string, opts *DynamoDBDeliveriesDatabaseOptions) (database.DeliveriesDatabase, error) {
+func NewDynamoDBDeliveriesDatabase(ctx context.Context, uri string) (database.DeliveriesDatabase, error) {
 
-	sess, err := session.NewSessionWithDSN(dsn)
+	client, err := aa_dynamodb.NewClientWithURI(ctx, uri)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create session, %w", err)
 	}
 
-	return NewDynamoDBDeliveriesDatabaseWithSession(sess, opts)
-}
-
-func NewDynamoDBDeliveriesDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBDeliveriesDatabaseOptions) (database.DeliveriesDatabase, error) {
-
-	client := aws_dynamodb.New(sess)
+	table := DELIVERIES_DEFAULT_TABLENAME
 
 	db := DynamoDBDeliveriesDatabase{
-		client:  client,
-		options: opts,
+		client: client,
+		table:  table,
 	}
 
 	return &db, nil
 }
 
-func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithAddressAndMessageId(addr string, message_id string) (*delivery.Delivery, error) {
+func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithAddressAndMessageId(ctx context.Context, addr string, message_id string) (*delivery.Delivery, error) {
 
 	req := &aws_dynamodb.GetItemInput{
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 		Key: map[string]*aws_dynamodb.AttributeValue{
 			"address": {
 				S: aws.String(addr),
@@ -81,9 +63,9 @@ func (db *DynamoDBDeliveriesDatabase) GetDeliveryWithAddressAndMessageId(addr st
 	return itemToDelivery(rsp.Item)
 }
 
-func (db *DynamoDBDeliveriesDatabase) AddDelivery(d *delivery.Delivery) error {
+func (db *DynamoDBDeliveriesDatabase) AddDelivery(ctx context.Context, d *delivery.Delivery) error {
 
-	existing_d, err := db.GetDeliveryWithAddressAndMessageId(d.Address, d.MessageId)
+	existing_d, err := db.GetDeliveryWithAddressAndMessageId(ctx, d.Address, d.MessageId)
 
 	if err != nil && !database.IsNotExist(err) {
 		return err
@@ -93,7 +75,7 @@ func (db *DynamoDBDeliveriesDatabase) AddDelivery(d *delivery.Delivery) error {
 		return errors.New("Delivery already exists")
 	}
 
-	return putDelivery(db.client, db.options, d)
+	return db.putDelivery(ctx, d)
 }
 
 /*
@@ -110,20 +92,20 @@ func (db *DynamoDBDeliveriesDatabase) ListDeliveries(ctx context.Context, callba
 					N: aws.String("0"),
 				},
 			},
-			TableName: aws.String(db.options.TableName),
+			TableName: aws.String(db.table),
 		}
 
 		return queryDeliveries(ctx, db.client, req, callback)
 
 	req := &aws_dynamodb.ScanInput{
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 	}
 
 	return scanDeliveries(ctx, db.client, req, callback)
 }
 */
 
-func putDelivery(client *aws_dynamodb.DynamoDB, opts *DynamoDBDeliveriesDatabaseOptions, sub *delivery.Delivery) error {
+func (db *DynamoDBDeliveriesDatabase) putDelivery(ctx context.Context, sub *delivery.Delivery) error {
 
 	item, err := aws_dynamodbattribute.MarshalMap(sub)
 
@@ -133,10 +115,10 @@ func putDelivery(client *aws_dynamodb.DynamoDB, opts *DynamoDBDeliveriesDatabase
 
 	req := &aws_dynamodb.PutItemInput{
 		Item:      item,
-		TableName: aws.String(opts.TableName),
+		TableName: aws.String(db.table),
 	}
 
-	_, err = client.PutItem(req)
+	_, err = db.client.PutItem(req)
 
 	if err != nil {
 		return err
@@ -180,7 +162,7 @@ func scanDeliveries(ctx context.Context, client *aws_dynamodb.DynamoDB, req *aws
 				return err
 			}
 
-			err = callback(sub)
+			err = callback(ctx, sub)
 
 			if err != nil {
 				return err

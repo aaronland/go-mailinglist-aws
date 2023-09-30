@@ -1,11 +1,13 @@
 package dynamodb
 
 import (
-	"github.com/aaronland/go-aws-session"
+	"context"
+	"fmt"
+
+	aa_dynamodb "github.com/aaronland/go-aws-dynamodb"
 	"github.com/aaronland/go-mailinglist/database"
 	"github.com/aaronland/go-mailinglist/eventlog"
 	aws "github.com/aws/aws-sdk-go/aws"
-	aws_session "github.com/aws/aws-sdk-go/aws/session"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	aws_dynamodbattribute "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
@@ -13,49 +15,31 @@ import (
 const EVENTLOGS_DEFAULT_TABLENAME string = "eventlogs"
 const EVENTLOGS_DEFAULT_BILLINGMODE string = "PAY_PER_REQUEST"
 
-type DynamoDBEventLogsDatabaseOptions struct {
-	TableName string
-}
-
-func DefaultDynamoDBEventLogsDatabaseOptions() *DynamoDBEventLogsDatabaseOptions {
-
-	opts := DynamoDBEventLogsDatabaseOptions{
-		TableName: EVENTLOGS_DEFAULT_TABLENAME,
-	}
-
-	return &opts
-}
-
 type DynamoDBEventLogsDatabase struct {
 	database.EventLogsDatabase
-	client  *aws_dynamodb.DynamoDB
-	options *DynamoDBEventLogsDatabaseOptions
+	client *aws_dynamodb.DynamoDB
+	table  string
 }
 
-func NewDynamoDBEventLogsDatabaseWithDSN(dsn string, opts *DynamoDBEventLogsDatabaseOptions) (database.EventLogsDatabase, error) {
+func NewDynamoDBEventLogsDatabase(ctx context.Context, uri string) (database.EventLogsDatabase, error) {
 
-	sess, err := session.NewSessionWithDSN(dsn)
+	client, err := aa_dynamodb.NewClientWithURI(ctx, uri)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create session, %w", err)
 	}
 
-	return NewDynamoDBEventLogsDatabaseWithSession(sess, opts)
-}
-
-func NewDynamoDBEventLogsDatabaseWithSession(sess *aws_session.Session, opts *DynamoDBEventLogsDatabaseOptions) (database.EventLogsDatabase, error) {
-
-	client := aws_dynamodb.New(sess)
+	table := EVENTLOGS_DEFAULT_TABLENAME
 
 	db := DynamoDBEventLogsDatabase{
-		client:  client,
-		options: opts,
+		client: client,
+		table:  table,
 	}
 
 	return &db, nil
 }
 
-func (db *DynamoDBEventLogsDatabase) AddEventLog(l *eventlog.EventLog) error {
+func (db *DynamoDBEventLogsDatabase) AddEventLog(ctx context.Context, l *eventlog.EventLog) error {
 
 	item, err := aws_dynamodbattribute.MarshalMap(l)
 
@@ -65,7 +49,7 @@ func (db *DynamoDBEventLogsDatabase) AddEventLog(l *eventlog.EventLog) error {
 
 	req := &aws_dynamodb.PutItemInput{
 		Item:      item,
-		TableName: aws.String(db.options.TableName),
+		TableName: aws.String(db.table),
 	}
 
 	_, err = db.client.PutItem(req)
