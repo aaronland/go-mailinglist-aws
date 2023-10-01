@@ -22,6 +22,11 @@ type DynamoDBConfirmationsDatabase struct {
 	table  string
 }
 
+func init() {
+	ctx := context.Background()
+	database.RegisterConfirmationsDatabase(ctx, "awsdynamodb", NewDynamoDBConfirmationsDatabase)
+}
+
 func NewDynamoDBConfirmationsDatabase(ctx context.Context, uri string) (database.ConfirmationsDatabase, error) {
 
 	client, err := aa_dynamodb.NewClientWithURI(ctx, uri)

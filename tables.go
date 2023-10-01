@@ -5,7 +5,7 @@ import (
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-func SubscriptionTables() map[string]*aws_dynamodb.CreateTableInput {
+func MailingListTables() map[string]*aws_dynamodb.CreateTableInput {
 
 	tables := map[string]*aws_dynamodb.CreateTableInput{
 		"deliveries": &aws_dynamodb.CreateTableInput{

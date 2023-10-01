@@ -22,6 +22,11 @@ type DynamoDBDeliveriesDatabase struct {
 	table  string
 }
 
+func init() {
+	ctx := context.Background()
+	database.RegisterDeliveriesDatabase(ctx, "awsdynamodb", NewDynamoDBDeliveriesDatabase)
+}
+
 func NewDynamoDBDeliveriesDatabase(ctx context.Context, uri string) (database.DeliveriesDatabase, error) {
 
 	client, err := aa_dynamodb.NewClientWithURI(ctx, uri)

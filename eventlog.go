@@ -21,6 +21,11 @@ type DynamoDBEventLogsDatabase struct {
 	table  string
 }
 
+func init() {
+	ctx := context.Background()
+	database.RegisterEventLogsDatabase(ctx, "awsdynamodb", NewDynamoDBEventLogsDatabase)
+}
+
 func NewDynamoDBEventLogsDatabase(ctx context.Context, uri string) (database.EventLogsDatabase, error) {
 
 	client, err := aa_dynamodb.NewClientWithURI(ctx, uri)
