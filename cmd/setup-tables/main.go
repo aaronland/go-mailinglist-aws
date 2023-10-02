@@ -24,7 +24,7 @@ func main() {
 	}
 
 	opts := &aa_dynamodb.CreateTablesOptions{
-		Tables:  dynamodb.MailingListTables(),
+		Tables:  dynamodb.DynamoDBTables,
 		Refresh: *refresh,
 	}
 

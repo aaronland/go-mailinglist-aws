@@ -18,8 +18,8 @@ github.com/Azure/go-autorest v12.0.0+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSW
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/GoogleCloudPlatform/cloudsql-proxy v0.0.0-20190605020000-c4ba1fdf4d36/go.mod h1:aJ4qN3TfrelA6NZ6AXsXRfmEVaYin3EDbSPJrKS8OXo=
 github.com/MichaelTJones/walk v0.0.0-20161122175330-4748e29d5718/go.mod h1:VVwKsx9Dc8rNG55BWqogoJzGubjKnRoXdUvpGbWqeCc=
-github.com/aaronland/go-aws-dynamodb v0.0.5 h1:E0tJhlr3o5fBFk3svIyzT92auYj6usl+XCwJkvwOxwA=
-github.com/aaronland/go-aws-dynamodb v0.0.5/go.mod h1:5nmPIpi+u1NOTEt2G/MoiYAO+yCWAs0hWijgchRomWM=
+github.com/aaronland/go-aws-dynamodb v0.0.6 h1:OW33J3/bTKTAnWnz0SOR91P4XzrQzCWkRFbEKzRk4L8=
+github.com/aaronland/go-aws-dynamodb v0.0.6/go.mod h1:bh7LBbjUMiJ96nmUw/wqIBMv3WBc7qi4eXHvIbqfs/Q=
 github.com/aaronland/go-aws-session v0.0.3/go.mod h1:nc4r+JFoGM6sop/lTspmUDcRIUW/V2NWs9Nd6jQWk90=
 github.com/aaronland/go-aws-session v0.2.1 h1:sNCuxR1w2ng8fxHsl08AFcAWvZqmN4hmnBbBRNRORd0=
 github.com/aaronland/go-aws-session v0.2.1/go.mod h1:M5imkutLPvwnI1Bb38minI3TCy1eSvwP6odMtCmBzqk=
@@ -43,8 +43,8 @@ github.com/aws/aws-sdk-go v1.19.18/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpi
 github.com/aws/aws-sdk-go v1.19.45/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.20.6/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.23.17/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
-github.com/aws/aws-sdk-go v1.45.13 h1:LwD/G+PX7FQnbU8wXekx12e90i1GuKJQC2+pl4IlPAs=
-github.com/aws/aws-sdk-go v1.45.13/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
+github.com/aws/aws-sdk-go v1.45.19 h1:+4yXWhldhCVXWFOQRF99ZTJ92t4DtoHROZIbN7Ujk/U=
+github.com/aws/aws-sdk-go v1.45.19/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/census-instrumentation/opencensus-proto v0.2.0/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
