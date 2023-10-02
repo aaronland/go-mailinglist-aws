@@ -12,6 +12,7 @@ import (
 func main() {
 
 	client_uri := flag.String("client-uri", "", "...")
+	refresh := flag.Bool("refresh", false, "...")
 	flag.Parse()
 
 	ctx := context.Background()
@@ -23,7 +24,8 @@ func main() {
 	}
 
 	opts := &aa_dynamodb.CreateTablesOptions{
-		Tables: dynamodb.MailingListTables(),
+		Tables:  dynamodb.MailingListTables(),
+		Refresh: *refresh,
 	}
 
 	err = aa_dynamodb.CreateTables(client, opts)
