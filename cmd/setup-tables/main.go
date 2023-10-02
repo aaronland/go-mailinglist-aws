@@ -1,35 +1,35 @@
 package main
 
 import (
-	_ "flag"
-	_ "log"
+	"context"
+	"flag"
+	"log"
 
-	_ "github.com/aaronland/go-mailinglist-database-dynamodb"
+	aa_dynamodb "github.com/aaronland/go-aws-dynamodb"
+	"github.com/aaronland/go-mailinglist-database-dynamodb"
 )
 
 func main() {
 
-	var client *aws_dynamodb.DynamoDB
-	
-	t, ok := auth_dynamodb.DynamoDBTables["accesstokens"]
+	client_uri := flag.String("client-uri", "", "...")
+	flag.Parse()
 
-	if !ok {
-		log.Fatalf("Failed to derive access tokens definition")
+	ctx := context.Background()
+
+	client, err := aa_dynamodb.NewClientWithURI(ctx, *client_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to create new client, %w", err)
 	}
 
 	opts := &aa_dynamodb.CreateTablesOptions{
-		Tables: map[string]*aws_dynamodb.CreateTableInput{
-			"accesstokens": t,
-		},
-
-		// Add all the go-mailinglist-database-dynamodb tables here
-		Refresh: true,
+		Tables: dynamodb.MailingListTables(),
 	}
 
-	err := aa_dynamodb.CreateTables(client, opts)
+	err = aa_dynamodb.CreateTables(client, opts)
 
 	if err != nil {
 		log.Fatalf("Failed to create access tokens database, %v", err)
 	}
-	
+
 }
